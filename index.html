@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BOUKS - Old Books Marketplace</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google OAuth Script -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Tesseract.js Client-Side OCR Engine -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 50: '#fdf4f0', 100: '#fbe8e1', 500: '#e05638', 600: '#c84325', 700: '#a6331a' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans antialiased min-h-screen flex flex-col justify-between overflow-x-hidden">
+
+    <!-- TOP NAVBAR -->
+    <header class="bg-white shadow-sm sticky top-0 z-40 border-b border-gray-100 w-full">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="navigateHome()">
+                <div class="bg-brand-500 text-white p-2 rounded-xl font-black text-lg sm:text-xl tracking-wider shadow-md">
+                    <i class="fa-solid fa-book-open"></i> BOUKS
+                </div>
+                <span class="text-[10px] sm:text-xs font-semibold px-2 py-0.5 bg-brand-50 text-brand-700 rounded-full border border-brand-100 hidden md:inline-block">District Wise & India</span>
+            </div>
+            
+            <div class="flex items-center space-x-2 sm:space-x-4">
+                <button onclick="openAboutPage()" class="text-xs sm:text-sm font-bold text-gray-600 hover:text-brand-600 transition flex items-center space-x-1 px-2.5 sm:px-3 py-2 rounded-xl hover:bg-gray-100">
+                    <i class="fa-solid fa-circle-info text-brand-500"></i><span class="hidden sm:inline">About</span>
+                </button>
+
+                <div id="navUserArea" class="hidden flex items-center space-x-2 sm:space-x-4">
+                    <div id="locationBadge" class="text-xs bg-gray-100 px-2.5 sm:px-3 py-1.5 rounded-lg border border-gray-200 flex items-center space-x-1 font-medium cursor-pointer hover:bg-gray-200 transition" onclick="openLocationModal()" title="Change Location">
+                        <i class="fa-solid fa-location-dot text-brand-500"></i>
+                        <span id="currentLocText" class="truncate max-w-[80px] sm:max-w-[130px]">Select Location</span>
+                    </div>
+                    <button onclick="openSellPage()" class="bg-brand-500 hover:bg-brand-600 text-white px-2.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition shadow-sm flex items-center space-x-1">
+                        <i class="fa-solid fa-plus text-xs"></i><span>Sell</span>
+                    </button>
+                    
+                    <div class="flex items-center space-x-2 border-l pl-2 sm:pl-3 border-gray-200">
+                        <img id="navUserPic" src="" alt="User" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-brand-500 object-cover">
+                        <span id="navUserName" class="text-xs sm:text-sm font-bold text-gray-700 hidden lg:inline truncate max-w-[100px]">User</span>
+                        <button onclick="logout()" class="bg-red-50 hover:bg-red-100 text-red-600 px-2 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition border border-red-200 flex items-center space-x-1 shadow-sm" title="Logout">
+                            <i class="fa-solid fa-power-off text-[10px]"></i>
+                            <span class="hidden sm:inline">Logout</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="flex-grow w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
+
+        <!-- 1. LOGIN PAGE -->
+        <section id="loginPage" class="max-w-md mx-auto px-4 py-16 w-full">
+            <div class="bg-white rounded-3xl shadow-xl border border-gray-100 p-6 sm:p-8 text-center space-y-6">
+                <div class="w-16 h-16 bg-brand-50 text-brand-500 rounded-2xl mx-auto flex items-center justify-center text-3xl font-bold shadow-inner">
+                    <i class="fa-solid fa-book"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">Welcome to BOUKS</h1>
+                    <p class="text-sm text-gray-500 mt-1">Buy & Sell old books in your district & all over India.</p>
+                </div>
+                
+                <div class="pt-2 flex flex-col items-center justify-center space-y-3.5">
+                    <div id="g_id_onload"
+                         data-client_id="384995532476-ib61p64qu7sf0os5a5c7jdsr6b6d1gjo.apps.googleusercontent.com"
+                         data-callback="handleCredentialResponse"
+                         data-auto_prompt="false">
+                    </div>
+                    <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline" data-text="sign_in_with" data-shape="rectangular" data-logo_alignment="left"></div>
+                </div>
+                <p class="text-xs text-gray-400">Secure Cloud Sync & District-wise Marketplace.</p>
+            </div>
+        </section>
+
+        <!-- 2. MAIN APP DASHBOARD -->
+        <div id="mainApp" class="hidden space-y-6 w-full">
+            
+            <div class="flex items-center justify-center space-x-2 bg-white p-1.5 rounded-2xl shadow-sm border border-gray-200 max-w-md mx-auto w-full">
+                <button id="tabBuyerBtn" onclick="switchPortal('buyer')" class="flex-1 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm transition bg-brand-500 text-white shadow-sm truncate">
+                    <i class="fa-solid fa-cart-shopping mr-1"></i> Buyer Portal
+                </button>
+                <button id="tabSellerBtn" onclick="switchPortal('seller')" class="flex-1 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm transition text-gray-600 hover:bg-gray-100 truncate">
+                    <i class="fa-solid fa-store mr-1"></i> Seller Portal
+                </button>
+            </div>
+
+            <!-- BUYER PORTAL VIEW -->
+            <div id="buyerPortal" class="space-y-6 w-full">
+                <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-200 flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div class="relative w-full md:w-96">
+                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </span>
+                        <input type="text" id="buyerSearchInput" oninput="renderBuyerBooks()" placeholder="Search book name, author..." class="w-full pl-10 pr-4 py-2.5 sm:py-3 bg-gray-50 border border-gray-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 transition">
+                    </div>
+                    <div class="flex items-center space-x-2 sm:space-x-3 w-full md:w-auto justify-end flex-wrap gap-2">
+                        <div class="flex items-center bg-gray-100 p-1 rounded-xl border border-gray-200">
+                            <button id="filterDistrictBtn" onclick="setBuyerFilter('district')" class="px-2.5 sm:px-4 py-2 text-xs font-bold rounded-lg transition bg-white text-brand-700 shadow-sm">My District</button>
+                            <button id="filterAllIndiaBtn" onclick="setBuyerFilter('all')" class="px-2.5 sm:px-4 py-2 text-xs font-bold rounded-lg transition text-gray-600">All India</button>
+                        </div>
+                        <button onclick="openMyOrdersModal()" class="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-xs font-bold border border-gray-200 transition flex items-center space-x-1.5">
+                            <i class="fa-solid fa-box-archive"></i><span>My Orders</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 id="buyerSectionTitle" class="text-base sm:text-lg font-extrabold text-gray-900">Books Available Near You</h2>
+                        <span id="buyerResultsCount" class="text-[11px] sm:text-xs font-bold bg-brand-50 text-brand-700 px-3 py-1 rounded-full border border-brand-100">0 books found</span>
+                    </div>
+                    <div id="buyerBooksGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+                        <!-- Dynamically Injected Books -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- SELLER PORTAL VIEW -->
+            <div id="sellerPortal" class="hidden space-y-6 w-full">
+                <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg sm:text-xl font-extrabold text-gray-900">Seller Dashboard</h2>
+                        <p class="text-xs text-gray-500 mt-0.5">Manage your listed old books & review buyer requests.</p>
+                    </div>
+                    <div class="flex items-center space-x-3 flex-wrap gap-2 w-full sm:w-auto justify-end">
+                        <button onclick="openSellPage()" class="bg-brand-500 hover:bg-brand-600 text-white px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition shadow-sm flex items-center space-x-2">
+                            <i class="fa-solid fa-plus"></i><span>List New Book</span>
+                        </button>
+                        
+                        <button onclick="openSellerOrdersModal()" class="relative bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition border border-gray-200 flex items-center space-x-2">
+                            <i class="fa-solid fa-clipboard-list text-brand-500"></i>
+                            <span>Show Orders</span>
+                            <span id="orderNotificationBadge" class="hidden absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-white shadow-md animate-pulse">0</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-gray-200 flex items-center justify-between">
+                        <div>
+                            <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Sales Revenue</span>
+                            <h3 id="sellerTotalSaleAmount" class="text-2xl sm:text-3xl font-black text-brand-600 mt-1">₹0</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-brand-50 text-brand-500 rounded-2xl flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-indian-rupee-sign"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-gray-200 flex items-center justify-between">
+                        <div>
+                            <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Delivered Orders</span>
+                            <h3 id="sellerDeliveredCount" class="text-2xl sm:text-3xl font-black text-green-600 mt-1">0</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-green-50 text-green-500 rounded-2xl flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-box-open"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-md font-extrabold text-gray-900 mb-4">Your Active Listings</h3>
+                    <div id="sellerBooksGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+                        <!-- Dynamically Injected Seller Books -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- BUYER BOOK OVERVIEW -->
+            <div id="buyerBookOverviewPage" class="hidden max-w-4xl mx-auto space-y-6 bg-white p-4 sm:p-10 rounded-3xl shadow-sm border border-gray-200 w-full">
+                <div class="flex items-center justify-between border-b pb-4">
+                    <button onclick="navigateHome()" class="text-xs font-bold text-gray-500 hover:text-brand-600 flex items-center space-x-1.5">
+                        <i class="fa-solid fa-arrow-left"></i><span>Back to Marketplace</span>
+                    </button>
+                    <span class="text-xs font-semibold px-3 py-1 bg-brand-50 text-brand-700 rounded-full border border-brand-100">Book Details</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 items-start">
+                    <div class="space-y-4">
+                        <div class="w-full h-72 sm:h-80 bg-gray-100 rounded-2xl overflow-hidden border border-gray-200 flex items-center justify-center relative">
+                            <img id="overviewMainPhoto" src="" alt="Book Main Photo" class="w-full h-full object-contain">
+                            <span id="photoCounterBadge" class="absolute bottom-3 right-3 bg-black/70 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-lg">Photo 1 of 5</span>
+                        </div>
+                        <div>
+                            <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block mb-2">Click thumbnail to view image:</span>
+                            <div id="overviewThumbnailContainer" class="flex space-x-2 overflow-x-auto pb-2 scrollbar-thin"></div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6 flex flex-col justify-between h-full">
+                        <div class="space-y-4">
+                            <div>
+                                <h1 id="overviewBookName" class="text-xl sm:text-2xl font-black text-gray-900 leading-tight">Book Title</h1>
+                                <p class="text-xs text-gray-500 mt-1.5 flex items-center">
+                                    <i class="fa-solid fa-location-dot text-brand-500 mr-1.5"></i>
+                                    <span id="overviewBookLocation">District, State</span>
+                                </p>
+                            </div>
+
+                            <div class="bg-gray-50 p-4 sm:p-5 rounded-2xl border border-gray-200 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs text-gray-500 uppercase font-bold">Selling Price</span>
+                                    <span id="overviewBookPrice" class="text-2xl sm:text-3xl font-black text-brand-600">₹0</span>
+                                </div>
+                                <div class="flex items-center justify-between border-t pt-2 border-gray-200">
+                                    <span class="text-xs text-gray-500 uppercase font-bold">Available Stock</span>
+                                    <span id="overviewBookUnits" class="text-sm font-bold text-gray-800">1 Unit</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button onclick="proceedToBuyerDetailsStep()" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3.5 sm:py-4 rounded-xl transition shadow-md text-sm flex items-center justify-center space-x-2">
+                            <span>Proceed to Buy & Unlock Contact</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BUYER DETAILS FORM -->
+            <div id="buyerDetailsPage" class="hidden max-w-2xl mx-auto space-y-6 bg-white p-4 sm:p-10 rounded-3xl shadow-sm border border-gray-200 w-full">
+                <div class="flex items-center justify-between border-b pb-4">
+                    <button onclick="backToBookOverview()" class="text-xs font-bold text-gray-500 hover:text-brand-600 flex items-center space-x-1.5">
+                        <i class="fa-solid fa-arrow-left"></i><span>Back to Book Details</span>
+                    </button>
+                    <span class="text-xs font-semibold px-3 py-1 bg-brand-50 text-brand-700 rounded-full border border-brand-100">Step 1 of 2</span>
+                </div>
+                <form id="buyerDetailsForm" onsubmit="proceedToBuyerPayment(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1 uppercase">Your Full Name</label>
+                        <input type="text" id="checkoutBuyerName" required placeholder="e.g. Rahul Sharma" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1 uppercase">Your Phone Number</label>
+                        <input type="tel" id="checkoutBuyerPhone" required pattern="[0-9]{10}" placeholder="10-digit mobile number" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1 uppercase">Delivery Address</label>
+                        <textarea id="checkoutBuyerAddress" required rows="3" placeholder="House no, Street, Landmark, District..." class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none"></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3.5 rounded-xl transition shadow-md text-sm">Proceed to Payment (₹9)</button>
+                </form>
+            </div>
+
+            <!-- BUYER PAYMENT QR -->
+            <div id="buyerPaymentPage" class="hidden max-w-2xl mx-auto space-y-6 bg-white p-4 sm:p-10 rounded-3xl shadow-sm border border-gray-200 w-full">
+                <div class="flex items-center justify-between border-b pb-4">
+                    <button onclick="backToBuyerDetails()" class="text-xs font-bold text-gray-500 hover:text-brand-600 flex items-center space-x-1.5">
+                        <i class="fa-solid fa-arrow-left"></i><span>Back</span>
+                    </button>
+                    <span class="text-xs font-semibold px-3 py-1 bg-brand-50 text-brand-700 rounded-full border border-brand-100">Step 2 of 2</span>
+                </div>
+                <div class="space-y-6">
+                    <div class="bg-white p-5 rounded-2xl border border-brand-200 text-center space-y-3">
+                        <span class="text-xs font-bold text-brand-700 block uppercase">Scan QR Code Below to Pay ₹9</span>
+                        <img src="QR.jpg" alt="Payment QR" class="w-40 sm:w-44 h-auto mx-auto border-2 border-brand-500 rounded-xl shadow-md">
+                        <p class="text-xs text-gray-600 font-medium">Pay ₹9 via PhonePe / GPay to <strong>DIPESH KUMAR</strong></p>
+                    </div>
+                    <form id="buyerPaymentForm" onsubmit="submitBuyerPaymentFinal(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1 uppercase">Upload Payment Screenshot *</label>
+                            <input type="file" id="buyerPaymentScreenshot" accept="image/*" required class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:font-bold file:bg-brand-50 file:text-brand-700 cursor-pointer">
+                        </div>
+                        <div id="buyerScanLoader" class="hidden text-center py-2 text-xs font-bold text-brand-600 animate-pulse">
+                            <i class="fa-solid fa-microchip animate-spin mr-1.5"></i> AI scanning payment screenshot...
+                        </div>
+                        <button type="submit" id="buyerSubmitBtn" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3.5 rounded-xl transition shadow-md text-sm">Verify & Unlock Seller Contact</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- UNLOCKED CONTACT VIEW -->
+            <div id="bookUnlockedView" class="hidden max-w-2xl mx-auto space-y-6 bg-white p-6 sm:p-10 rounded-3xl shadow-sm border border-gray-200 text-center w-full">
+                <div class="w-16 h-16 bg-green-50 text-green-600 rounded-2xl mx-auto flex items-center justify-center text-3xl font-bold">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl sm:text-2xl font-black text-gray-900">Contact Unlocked Successfully!</h2>
+                </div>
+                <div class="bg-green-50 p-6 rounded-2xl border border-green-200 text-left space-y-3">
+                    <p class="text-sm text-gray-800"><strong>Seller Phone:</strong> <span id="unlockedPhoneDisplay" class="text-brand-700 font-bold"></span></p>
+                    <p class="text-sm text-gray-800"><strong>Seller Address:</strong> <span id="unlockedAddressDisplay" class="text-brand-700 font-bold"></span></p>
+                </div>
+                <button onclick="navigateHome()" class="w-full bg-gray-900 hover:bg-black text-white font-bold py-3 rounded-xl transition text-sm">Back to Marketplace</button>
+            </div>
+
+            <!-- SELLER STEP 1 -->
+            <div id="sellDetailsPage" class="hidden max-w-2xl mx-auto space-y-6 bg-white p-4 sm:p-10 rounded-3xl shadow-sm border border-gray-200 w-full">
+                <div class="flex items-center justify-between border-b pb-4">
+                    <button onclick="switchPortal('seller')" class="text-xs font-bold text-gray-500 hover:text-brand-600 flex items-center space-x-1.5">
+                        <i class="fa-solid fa-arrow-left"></i><span>Back</span>
+                    </button>
+                    <span class="text-xs font-semibold px-3 py-1 bg-brand-50 text-brand-700 rounded-full border border-brand-100">List Book</span>
+                </div>
+                <form id="sellDetailsForm" onsubmit="proceedToSellPayment(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1 uppercase">Book Name & Author</label>
+                        <input type="text" id="bookNameInput" required placeholder="e.g. Atomic Habits" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none">
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1 uppercase">Selling Price (₹)</label>
+                            <input type="number" id="bookPriceInput" required min="1" placeholder="250" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1 uppercase">Units</label>
+                            <input type="number" id="bookUnitsInput" required min="1" value="1" oninput="updateListingFee()" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1 uppercase">Upload 5 Photos</label>
+                        <input type="file" id="bookPhotosInput" accept="image/*" multiple required onchange="handlePhotoUpload(event)" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-brand-50 file:text-brand-700 cursor-pointer">
+                        <p id="photoCountNotice" class="text-[11px] text-gray-400 mt-1">Please select photos.</p>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1 uppercase">State</label>
+                            <select id="sellerStateSelect" required onchange="populateSellerDistricts()" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none">
+                                <option value="">-- Choose State --</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1 uppercase">District</label>
+                            <select id="sellerDistrictSelect" required class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none">
+                                <option value="">-- Choose District --</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1 uppercase">Phone Number</label>
+                        <input type="tel" id="sellerPhoneInput" required pattern="[0-9]{10}" placeholder="10-digit mobile" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1 uppercase">Full Address</label>
+                        <textarea id="sellerAddressInput" required rows="2" placeholder="House no, Street..." class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none"></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3.5 rounded-xl transition shadow-md text-sm">Proceed to Listing Fee Payment (₹<span id="btnFeeSpan">9</span>)</button>
+                </form>
+            </div>
+
+            <!-- SELLER STEP 2 PAYMENT -->
+            <div id="sellPaymentPage" class="hidden max-w-2xl mx-auto space-y-6 bg-white p-4 sm:p-10 rounded-3xl shadow-sm border border-gray-200 w-full">
+                <div class="flex items-center justify-between border-b pb-4">
+                    <button onclick="backToSellDetails()" class="text-xs font-bold text-gray-500 hover:text-brand-600 flex items-center space-x-1.5">
+                        <i class="fa-solid fa-arrow-left"></i><span>Back</span>
+                    </button>
+                    <span class="text-xs font-semibold px-3 py-1 bg-brand-50 text-brand-700 rounded-full border border-brand-100">Listing Fee</span>
+                </div>
+                <div class="space-y-6">
+                    <div class="bg-brand-50 p-5 rounded-2xl border border-brand-100 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-gray-600">Total Amount</span>
+                            <span id="listingFeeTotal" class="text-xl font-black text-brand-600">₹9</span>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-brand-200 text-center space-y-2">
+                            <span class="text-xs font-bold text-brand-700 block uppercase">Scan QR to Pay Listing Fee</span>
+                            <img src="QR.jpg" alt="QR" class="w-40 h-auto mx-auto border-2 border-brand-500 rounded-xl shadow-md">
+                        </div>
+                    </div>
+                    <form id="sellPaymentForm" onsubmit="submitListingPaymentFinal(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1 uppercase">Upload Payment Screenshot *</label>
+                            <input type="file" id="sellerPaymentScreenshot" accept="image/*" required class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-brand-100 file:text-brand-800 cursor-pointer">
+                        </div>
+                        <div id="sellerScanLoader" class="hidden text-center py-2 text-xs font-bold text-brand-600 animate-pulse">
+                            <i class="fa-solid fa-microchip animate-spin mr-1.5"></i> AI scanning payment screenshot...
+                        </div>
+                        <button type="submit" id="sellerSubmitBtn" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3.5 rounded-xl transition shadow-md text-sm">Verify & LIST BOOK LIVE</button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ABOUT PAGE -->
+        <div id="aboutPage" class="hidden max-w-4xl mx-auto px-4 py-8 sm:py-12 space-y-8 w-full">
+            <div class="bg-white p-6 sm:p-12 rounded-3xl shadow-sm border border-gray-200 space-y-6">
+                <div class="flex items-center justify-between border-b pb-4">
+                    <button onclick="navigateHome()" class="text-xs font-bold text-gray-500 hover:text-brand-600 flex items-center space-x-1.5">
+                        <i class="fa-solid fa-arrow-left"></i><span>Back</span>
+                    </button>
+                    <span class="text-xs font-semibold px-3 py-1 bg-brand-50 text-brand-700 rounded-full border border-brand-100">About</span>
+                </div>
+                <p class="text-sm text-gray-700 leading-relaxed"><strong>BOUKS</strong> is a peer-to-peer marketplace for buying and selling second-hand books district-wise across India with cloud synchronization.</p>
+                <div class="pt-6 border-t border-gray-100 flex items-center justify-between flex-wrap gap-3">
+                    <span class="text-xs text-gray-400 font-medium">Administration</span>
+                    <button onclick="openAdminModal()" class="bg-gray-900 hover:bg-black text-white px-5 py-2.5 rounded-xl text-xs font-bold transition">Admin Panel</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-gray-200 py-6 mt-12 w-full">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-gray-400">
+            &copy; 2026 BOUKS Marketplace. Cloud Synced.
+        </div>
+    </footer>
+
+    <!-- MODALS -->
+    <!-- LOCATION MODAL -->
+    <div id="locationModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-gray-100 space-y-6">
+            <div class="text-center space-y-2">
+                <h3 class="text-xl font-extrabold text-gray-900">Set Your Location</h3>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase">Select State</label>
+                    <select id="modalStateSelect" onchange="populateModalDistricts()" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none">
+                        <option value="">-- Choose State --</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase">Select District</label>
+                    <select id="modalDistrictSelect" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none">
+                        <option value="">-- Choose District --</option>
+                    </select>
+                </div>
+            </div>
+            <button onclick="saveUserLocation()" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3 rounded-xl transition text-sm">Confirm & Continue</button>
+        </div>
+    </div>
+
+    <!-- SELLER ORDERS MODAL -->
+    <div id="sellerOrdersModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-gray-100 space-y-6 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b pb-4">
+                <h3 class="text-lg font-extrabold text-gray-900">Buyer Orders & Requests</h3>
+                <button onclick="closeSellerOrdersModal()" class="text-gray-400 hover:text-gray-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="sellerOrdersList" class="space-y-4"></div>
+        </div>
+    </div>
+
+    <!-- MY ORDERS MODAL -->
+    <div id="myOrdersModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-gray-100 space-y-6 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b pb-4">
+                <h3 class="text-lg font-extrabold text-gray-900">My Unlocked Books & Orders</h3>
+                <button onclick="closeMyOrdersModal()" class="text-gray-400 hover:text-gray-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="buyerOrdersList" class="space-y-4"></div>
+        </div>
+    </div>
+
+    <!-- ADMIN MODAL -->
+    <div id="adminModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-4xl w-full p-6 sm:p-8 shadow-2xl border border-gray-100 space-y-6 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b pb-4">
+                <h3 class="text-lg font-extrabold text-gray-900">Admin Control Panel</h3>
+                <button onclick="closeAdminModal()" class="text-gray-400 hover:text-gray-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="adminLoginBox" class="max-w-md mx-auto py-6 space-y-4">
+                <input type="text" id="adminUser" placeholder="Username" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none">
+                <input type="password" id="adminPass" placeholder="Password" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none">
+                <button onclick="verifyAdmin()" class="w-full bg-gray-900 hover:bg-black text-white font-bold py-3 rounded-xl transition text-sm">Login to Admin</button>
+            </div>
+            <div id="adminDashboardBox" class="hidden space-y-6">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="bg-brand-50 p-5 rounded-2xl border border-brand-100">
+                        <span class="text-xs font-bold text-gray-500 uppercase">Listing Revenue</span>
+                        <h4 id="adminListingRevenue" class="text-2xl font-black text-brand-600 mt-1">₹0</h4>
+                    </div>
+                    <div class="bg-green-50 p-5 rounded-2xl border border-green-100">
+                        <span class="text-xs font-bold text-gray-500 uppercase">Unlock Revenue</span>
+                        <h4 id="adminUnlockRevenue" class="text-2xl font-black text-green-600 mt-1">₹0</h4>
+                    </div>
+                    <div class="bg-blue-50 p-5 rounded-2xl border border-blue-100">
+                        <span class="text-xs font-bold text-gray-500 uppercase">Total Users</span>
+                        <h4 id="adminTotalUsers" class="text-2xl font-black text-blue-600 mt-1">0</h4>
+                    </div>
+                </div>
+                <div class="space-y-6">
+                    <div class="flex items-center justify-between border-b pb-2">
+                        <h4 class="text-sm font-bold text-gray-900 uppercase">Platform Users</h4>
+                        <button id="adminBackToUsersBtn" onclick="renderAdminUsersList()" class="hidden text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-lg font-bold text-gray-700 transition">Back to Users</button>
+                    </div>
+                    <div id="adminUsersContainer" class="space-y-6">
+                        <div class="space-y-3">
+                            <h5 class="text-xs font-black text-brand-600 uppercase">Sellers</h5>
+                            <div id="adminSellersList" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+                        </div>
+                        <div class="space-y-3 pt-4 border-t border-gray-100">
+                            <h5 class="text-xs font-black text-blue-600 uppercase">Buyers</h5>
+                            <div id="adminBuyersList" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+                        </div>
+                    </div>
+                    <div id="adminUserDetailView" class="hidden space-y-4">
+                        <div class="bg-gray-50 p-4 rounded-2xl border border-gray-200 flex items-center space-x-3">
+                            <div id="adminSelectedUserAvatar" class="w-12 h-12 bg-brand-500 text-white rounded-full flex items-center justify-center font-bold text-lg">U</div>
+                            <div>
+                                <h4 id="adminSelectedUserName" class="text-base font-extrabold text-gray-900">User</h4>
+                                <p id="adminSelectedUserEmail" class="text-xs text-gray-500">email</p>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <h5 class="text-xs font-black text-gray-800 uppercase">Products Listed:</h5>
+                            <div id="adminUserProductsList" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+                        </div>
+                        <div class="space-y-2 pt-4 border-t border-gray-100">
+                            <h5 class="text-xs font-black text-gray-800 uppercase">Orders Bought:</h5>
+                            <div id="adminUserBoughtList" class="space-y-2"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FIREBASE SDK & APP LOGIC -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // Firebase Config integrated automatically from your details
+        const firebaseConfig = {
+            apiKey: "AIzaSyDb09wfnnHsSWMadC9Wr63yMca59DlF4RY",
+            authDomain: "bouks-5f293.firebaseapp.com",
+            projectId: "bouks-5f293",
+            storageBucket: "bouks-5f293.firebasestorage.app",
+            messagingSenderId: "567991352701",
+            appId: "1:567991352701:web:b5ffe0240e72a76b166014",
+            measurementId: "G-JJ1MX07PD9"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const indianStatesAndDistricts = {
+            "Andhra Pradesh": ["Anantapur", "Chittoor", "East Godavari", "Guntur", "Kadapa", "Krishna", "Kurnool", "Prakasam", "Nellore", "Srikakulam", "Visakhapatnam", "Vizianagaram", "West Godavari"],
+            "Bihar": ["Araria", "Arwal", "Aurangabad", "Banka", "Begusarai", "Bhagalpur", "Bhojpur", "Buxar", "Darbhanga", "East Champaran", "Gaya", "Gopalganj", "Jamui", "Jehanabad", "Kaimur", "Katihar", "Khagaria", "Kishanganj", "Lakhisarai", "Madhepura", "Madhubani", "Munger", "Muzaffarpur", "Nalanda", "Nawada", "Patna", "Purnia", "Rohtas", "Saharsa", "Samastipur", "Saran", "Sheikhpura", "Sheohar", "Sitamarhi", "Siwan", "Supaul", "Vaishali", "West Champaran"],
+            "Delhi": ["Central Delhi", "East Delhi", "New Delhi", "North Delhi", "North East Delhi", "North West Delhi", "Shahdara", "South Delhi", "South East Delhi", "South West Delhi", "West Delhi"],
+            "Uttar Pradesh": ["Agra", "Aligarh", "Ambedkar Nagar", "Amethi", "Amroha", "Auraiya", "Azamgarh", "Badaun", "Baghpat", "Bahraich", "Ballia", "Balrampur", "Banda", "Barabanki", "Bareilly", "Basti", "Bhadohi", "Bijnor", "Budaun", "Bulandshahr", "Chandauli", "Chitrakoot", "Deoria", "Etah", "Etawah", "Ayodhya", "Farrukhabad", "Fatehpur", "Firozabad", "Gautam Buddha Nagar", "Ghaziabad", "Ghazipur", "Gonda", "Gorakhpur", "Hamirpur", "Hapur", "Hardoi", "Hathras", "Jalaun", "Jaunpur", "Jhansi", "Kannauj", "Kanpur Dehat", "Kanpur Nagar", "Kasganj", "Kaushambi", "Kheri", "Kushinagar", "Lalitpur", "Lucknow", "Maharajganj", "Mahoba", "Mainpuri", "Mathura", "Mau", "Meerut", "Mirzapur", "Moradabad", "Muzaffarnagar", "Pilibhit", "Pratapgarh", "Prayagraj", "Rae Bareli", "Rampur", "Saharanpur", "Sambhal", "Sant Kabir Nagar", "Shahjahanpur", "Shamli", "Sitapur", "Sonbhadra", "Sultanpur", "Unnao", "Varanasi"],
+            "West Bengal": ["Alipurduar", "Bankura", "Birbhum", "Cooch Behar", "Dakshin Dinajpur", "Darjeeling", "Hooghly", "Howrah", "Jalpaiguri", "Jhargram", "Kalimpong", "Kolkata", "Malda", "Murshidabad", "Nadia", "North 24 Parganas", "South 24 Parganas", "Paschim Bardhaman", "Paschim Medinipur", "Purba Bardhaman", "Purba Medinipur", "Purulia", "Siliguri"]
+        };
+
+        window.currentUser = JSON.parse(localStorage.getItem('bouks_user')) || null;
+        window.userLocation = JSON.parse(localStorage.getItem('bouks_location')) || null;
+        window.books = [];
+        window.orders = [];
+        window.adminEarnings = JSON.parse(localStorage.getItem('bouks_admin_earnings')) || { listing: 0, unlock: 0 };
+        window.activeFilter = 'district';
+        window.selectedPhotosBase64 = [];
+        window.currentCheckoutBookId = null;
+        window.tempBuyerData = {};
+        window.tempSellData = {};
+
+        async function fetchCloudData() {
+            try {
+                const booksSnap = await getDocs(collection(db, "books"));
+                window.books = [];
+                booksSnap.forEach(docSnap => {
+                    window.books.push({ firestoreId: docSnap.id, ...docSnap.data() });
+                });
+
+                const ordersSnap = await getDocs(collection(db, "orders"));
+                window.orders = [];
+                ordersSnap.forEach(docSnap => {
+                    window.orders.push({ firestoreId: docSnap.id, ...docSnap.data() });
+                });
+
+                if(window.currentUser) {
+                    renderBuyerBooks();
+                    renderSellerBooks();
+                }
+            } catch (err) {
+                console.error("Cloud fetch error:", err);
+            }
+        }
+
+        window.onload = async function() {
+            populateStateDropdowns();
+            await fetchCloudData();
+            if (window.currentUser) {
+                showApp();
+            }
+        };
+
+        function showApp() {
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('buyerBookOverviewPage').classList.add('hidden');
+            document.getElementById('buyerDetailsPage').classList.add('hidden');
+            document.getElementById('buyerPaymentPage').classList.add('hidden');
+            document.getElementById('bookUnlockedView').classList.add('hidden');
+            document.getElementById('sellDetailsPage').classList.add('hidden');
+            document.getElementById('sellPaymentPage').classList.add('hidden');
+            document.getElementById('aboutPage').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            document.getElementById('navUserArea').classList.remove('hidden');
+            document.getElementById('navUserPic').src = window.currentUser.picture || 'https://via.placeholder.com/150';
+            document.getElementById('navUserName').innerText = window.currentUser.name;
+
+            if (!window.userLocation) {
+                openLocationModal();
+            } else {
+                updateLocationBadge();
+                renderBuyerBooks();
+                renderSellerBooks();
+            }
+        }
+
+        window.handleCredentialResponse = function(response) {
+            const responsePayload = parseJwt(response.credential);
+            window.currentUser = {
+                name: responsePayload.name,
+                email: responsePayload.email,
+                picture: responsePayload.picture
+            };
+            localStorage.setItem('bouks_user', JSON.stringify(window.currentUser));
+            showApp();
+        }
+
+        function parseJwt(token) {
+            var base64Url = token.split('.')[1];
+            var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+        }
+
+        window.logout = function() {
+            localStorage.removeItem('bouks_user');
+            location.reload();
+        }
+
+        window.openAboutPage = function() {
+            document.getElementById('mainApp').classList.add('hidden');
+            document.getElementById('aboutPage').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function populateStateDropdowns() {
+            const stateSelects = [document.getElementById('modalStateSelect'), document.getElementById('sellerStateSelect')];
+            stateSelects.forEach(sel => {
+                if(!sel) return;
+                sel.innerHTML = '<option value="">-- Choose State --</option>';
+                Object.keys(indianStatesAndDistricts).sort().forEach(state => {
+                    let opt = document.createElement('option');
+                    opt.value = state;
+                    opt.innerText = state;
+                    sel.appendChild(opt);
+                });
+            });
+        }
+
+        window.populateModalDistricts = function() {
+            const state = document.getElementById('modalStateSelect').value;
+            const distSelect = document.getElementById('modalDistrictSelect');
+            distSelect.innerHTML = '<option value="">-- Choose District --</option>';
+            if(state && indianStatesAndDistricts[state]) {
+                indianStatesAndDistricts[state].sort().forEach(dist => {
+                    let opt = document.createElement('option');
+                    opt.value = dist;
+                    opt.innerText = dist;
+                    distSelect.appendChild(opt);
+                });
+            }
+        }
+
+        window.populateSellerDistricts = function() {
+            const state = document.getElementById('sellerStateSelect').value;
+            const distSelect = document.getElementById('sellerDistrictSelect');
+            distSelect.innerHTML = '<option value="">-- Choose District --</option>';
+            if(state && indianStatesAndDistricts[state]) {
+                indianStatesAndDistricts[state].sort().forEach(dist => {
+                    let opt = document.createElement('option');
+                    opt.value = dist;
+                    opt.innerText = dist;
+                    distSelect.appendChild(opt);
+                });
+            }
+        }
+
+        window.openLocationModal = function() {
+            document.getElementById('locationModal').classList.remove('hidden');
+        }
+
+        window.saveUserLocation = function() {
+            const state = document.getElementById('modalStateSelect').value;
+            const district = document.getElementById('modalDistrictSelect').value;
+            if(!state || !district) {
+                alert('Please select both State and District.');
+                return;
+            }
+            window.userLocation = { state, district };
+            localStorage.setItem('bouks_location', JSON.stringify(window.userLocation));
+            document.getElementById('locationModal').classList.add('hidden');
+            updateLocationBadge();
+            renderBuyerBooks();
+            renderSellerBooks();
+        }
+
+        function updateLocationBadge() {
+            if(window.userLocation) {
+                document.getElementById('currentLocText').innerText = `${window.userLocation.district}, ${window.userLocation.state}`;
+            }
+        }
+
+        window.switchPortal = function(portal) {
+            const buyerBtn = document.getElementById('tabBuyerBtn');
+            const sellerBtn = document.getElementById('tabSellerBtn');
+            const buyerPortal = document.getElementById('buyerPortal');
+            const sellerPortal = document.getElementById('sellerPortal');
+
+            document.getElementById('buyerBookOverviewPage').classList.add('hidden');
+            document.getElementById('buyerDetailsPage').classList.add('hidden');
+            document.getElementById('buyerPaymentPage').classList.add('hidden');
+            document.getElementById('bookUnlockedView').classList.add('hidden');
+            document.getElementById('sellDetailsPage').classList.add('hidden');
+            document.getElementById('sellPaymentPage').classList.add('hidden');
+            document.getElementById('aboutPage').classList.add('hidden');
+
+            if(portal === 'buyer') {
+                buyerBtn.className = "flex-1 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm transition bg-brand-500 text-white shadow-sm truncate";
+                sellerBtn.className = "flex-1 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm transition text-gray-600 hover:bg-gray-100 truncate";
+                buyerPortal.classList.remove('hidden');
+                sellerPortal.classList.add('hidden');
+                renderBuyerBooks();
+            } else {
+                sellerBtn.className = "flex-1 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm transition bg-brand-500 text-white shadow-sm truncate";
+                buyerBtn.className = "flex-1 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm transition text-gray-600 hover:bg-gray-100 truncate";
+                sellerPortal.classList.remove('hidden');
+                buyerPortal.classList.add('hidden');
+                renderSellerBooks();
+                updateOrderBadgeCount();
+            }
+        }
+
+        window.navigateHome = function() {
+            if(window.currentUser) {
+                showApp();
+            } else {
+                location.reload();
+            }
+        }
+
+        window.openSellPage = function() {
+            if(!window.userLocation) {
+                openLocationModal();
+                return;
+            }
+            document.getElementById('buyerPortal').classList.add('hidden');
+            document.getElementById('sellerPortal').classList.add('hidden');
+            document.getElementById('sellDetailsPage').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        window.handlePhotoUpload = function(event) {
+            const files = event.target.files;
+            window.selectedPhotosBase64 = [];
+            if(files.length > 5) {
+                alert('Maximum 5 photos allowed.');
+                return;
+            }
+            document.getElementById('photoCountNotice').innerText = `${files.length} photo(s) selected.`;
+            for(let i=0; i<files.length; i++) {
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    window.selectedPhotosBase64.push(e.target.result);
+                };
+                reader.readAsDataURL(files[i]);
+            }
+        }
+
+        window.updateListingFee = function() {
+            const units = parseInt(document.getElementById('bookUnitsInput').value) || 1;
+            const total = units * 9;
+            document.getElementById('listingFeeTotal').innerText = `₹${total}`;
+            document.getElementById('sellFeeTotalHeader').innerText = total;
+            document.getElementById('qrPayAmountText').innerText = total;
+            document.getElementById('btnFeeSpan').innerText = total;
+        }
+
+        window.proceedToSellPayment = function(e) {
+            e.preventDefault();
+            const state = document.getElementById('sellerStateSelect').value;
+            const district = document.getElementById('sellerDistrictSelect').value;
+
+            if(!state || !district) {
+                alert('Please select State and District.');
+                return;
+            }
+            if(window.selectedPhotosBase64.length === 0) {
+                alert('Please upload at least 1 photo.');
+                return;
+            }
+
+            window.tempSellData = {
+                name: document.getElementById('bookNameInput').value,
+                price: parseFloat(document.getElementById('bookPriceInput').value),
+                units: parseInt(document.getElementById('bookUnitsInput').value) || 1,
+                phone: document.getElementById('sellerPhoneInput').value,
+                address: document.getElementById('sellerAddressInput').value,
+                district: district,
+                state: state
+            };
+
+            document.getElementById('sellDetailsPage').classList.add('hidden');
+            document.getElementById('sellPaymentPage').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        window.backToSellDetails = function() {
+            document.getElementById('sellPaymentPage').classList.add('hidden');
+            document.getElementById('sellDetailsPage').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        async function analyzePaymentScreenshot(fileInput) {
+            const file = fileInput.files[0];
+            if (!file) return false;
+            try {
+                const worker = await Tesseract.createWorker('eng');
+                const ret = await worker.recognize(file);
+                await worker.terminate();
+                const text = ret.data.text.toLowerCase();
+                return text.includes('paid') || text.includes('success') || text.includes('upi') || text.includes('dipesh') || text.includes('rs');
+            } catch (err) {
+                return true;
+            }
+        }
+
+        window.submitListingPaymentFinal = async function(e) {
+            e.preventDefault();
+            const screenshotInput = document.getElementById('sellerPaymentScreenshot');
+            if(!screenshotInput.files || screenshotInput.files.length === 0) {
+                alert('Please upload payment screenshot.');
+                return;
+            }
+
+            document.getElementById('sellerScanLoader').classList.remove('hidden');
+            document.getElementById('sellerSubmitBtn').disabled = true;
+
+            const isValid = await analyzePaymentScreenshot(screenshotInput);
+
+            document.getElementById('sellerScanLoader').classList.add('hidden');
+            document.getElementById('sellerSubmitBtn').disabled = false;
+
+            if(!isValid) {
+                alert('Invalid screenshot! Please upload clear payment screenshot.');
+                return;
+            }
+
+            const totalFee = window.tempSellData.units * 9;
+            const newBook = {
+                id: 'BOOK_' + Date.now(),
+                name: window.tempSellData.name,
+                price: window.tempSellData.price,
+                units: window.tempSellData.units,
+                photos: window.selectedPhotosBase64,
+                phone: window.tempSellData.phone,
+                address: window.tempSellData.address,
+                district: window.tempSellData.district,
+                state: window.tempSellData.state,
+                sellerEmail: window.currentUser.email,
+                createdAt: new Date().toISOString()
+            };
+
+            await addDoc(collection(db, "books"), newBook);
+            window.adminEarnings.listing += totalFee;
+            localStorage.setItem('bouks_admin_earnings', JSON.stringify(window.adminEarnings));
+
+            document.getElementById('sellDetailsForm').reset();
+            document.getElementById('sellPaymentForm').reset();
+            window.selectedPhotosBase64 = [];
+            await fetchCloudData();
+            switchPortal('seller');
+            alert('Payment Verified! Book listed live to cloud.');
+        }
+
+        window.setBuyerFilter = function(filter) {
+            window.activeFilter = filter;
+            if(filter === 'district') {
+                document.getElementById('filterDistrictBtn').className = "px-2.5 sm:px-4 py-2 text-xs font-bold rounded-lg transition bg-white text-brand-700 shadow-sm";
+                document.getElementById('filterAllIndiaBtn').className = "px-2.5 sm:px-4 py-2 text-xs font-bold rounded-lg transition text-gray-600";
+                document.getElementById('buyerSectionTitle').innerText = `Books in ${window.userLocation ? window.userLocation.district : 'District'}`;
+            } else {
+                document.getElementById('filterAllIndiaBtn').className = "px-2.5 sm:px-4 py-2 text-xs font-bold rounded-lg transition bg-white text-brand-700 shadow-sm";
+                document.getElementById('filterDistrictBtn').className = "px-2.5 sm:px-4 py-2 text-xs font-bold rounded-lg transition text-gray-600";
+                document.getElementById('buyerSectionTitle').innerText = "All India Book Listings";
+            }
+            renderBuyerBooks();
+        }
+
+        window.renderBuyerBooks = function() {
+            const grid = document.getElementById('buyerBooksGrid');
+            const searchQuery = document.getElementById('buyerSearchInput').value.toLowerCase();
+            grid.innerHTML = '';
+
+            let filtered = window.books.filter(b => b.units > 0);
+
+            if(window.activeFilter === 'district' && window.userLocation) {
+                filtered = filtered.filter(b => b.district.toLowerCase() === window.userLocation.district.toLowerCase());
+            }
+            if(searchQuery) {
+                filtered = filtered.filter(b => b.name.toLowerCase().includes(searchQuery));
+            }
+
+            document.getElementById('buyerResultsCount').innerText = `${filtered.length} books found`;
+
+            if(filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-12 text-gray-400 text-sm">No books found.</div>`;
+                return;
+            }
+
+            filtered.forEach(b => {
+                let card = document.createElement('div');
+                card.className = "bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition flex flex-col justify-between cursor-pointer";
+                card.onclick = () => openBuyerBookOverview(b.id);
+                card.innerHTML = `
+                    <div class="h-48 bg-gray-100 overflow-hidden relative">
+                        <img src="${b.photos[0]}" alt="${b.name}" class="w-full h-full object-cover">
+                        <span class="absolute top-3 left-3 bg-black/70 backdrop-blur-md text-white text-[11px] font-bold px-2.5 py-1 rounded-lg">${b.district}</span>
+                    </div>
+                    <div class="p-4 space-y-2">
+                        <h4 class="font-extrabold text-gray-900 text-sm line-clamp-1">${b.name}</h4>
+                        <div class="flex items-center justify-between pt-2 border-t border-gray-100">
+                            <span class="text-base font-black text-brand-600">₹${b.price}</span>
+                            <span class="text-xs font-semibold text-gray-500">${b.units} left</span>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        window.openBuyerBookOverview = function(bookId) {
+            window.currentCheckoutBookId = bookId;
+            const book = window.books.find(b => b.id === bookId);
+            if(!book) return;
+
+            const existingOrder = window.orders.find(o => o.bookId === bookId && o.buyerEmail === window.currentUser.email);
+            if(existingOrder) {
+                document.getElementById('unlockedPhoneDisplay').innerText = book.phone;
+                document.getElementById('unlockedAddressDisplay').innerText = book.address;
+                document.getElementById('buyerPortal').classList.add('hidden');
+                document.getElementById('bookUnlockedView').classList.remove('hidden');
+                return;
+            }
+
+            document.getElementById('overviewBookName').innerText = book.name;
+            document.getElementById('overviewBookPrice').innerText = `₹${book.price}`;
+            document.getElementById('overviewBookUnits').innerText = `${book.units} Unit(s)`;
+            document.getElementById('overviewBookLocation').innerText = `${book.district}, ${book.state}`;
+            document.getElementById('overviewMainPhoto').src = book.photos[0];
+
+            const thumbContainer = document.getElementById('overviewThumbnailContainer');
+            thumbContainer.innerHTML = '';
+            book.photos.forEach((photo, idx) => {
+                let img = document.createElement('img');
+                img.src = photo;
+                img.className = `w-16 h-16 rounded-xl object-cover cursor-pointer border-2 ${idx === 0 ? 'border-brand-500' : 'border-gray-200'}`;
+                img.onclick = () => {
+                    document.getElementById('overviewMainPhoto').src = photo;
+                };
+                thumbContainer.appendChild(img);
+            });
+
+            document.getElementById('buyerPortal').classList.add('hidden');
+            document.getElementById('buyerBookOverviewPage').classList.remove('hidden');
+        }
+
+        window.proceedToBuyerDetailsStep = function() {
+            document.getElementById('checkoutBuyerName').value = window.currentUser.name || '';
+            document.getElementById('buyerBookOverviewPage').classList.add('hidden');
+            document.getElementById('buyerDetailsPage').classList.remove('hidden');
+        }
+
+        window.backToBookOverview = function() {
+            document.getElementById('buyerDetailsPage').classList.add('hidden');
+            document.getElementById('buyerBookOverviewPage').classList.remove('hidden');
+        }
+
+        window.proceedToBuyerPayment = function(e) {
+            e.preventDefault();
+            window.tempBuyerData = {
+                name: document.getElementById('checkoutBuyerName').value,
+                phone: document.getElementById('checkoutBuyerPhone').value,
+                address: document.getElementById('checkoutBuyerAddress').value
+            };
+            document.getElementById('buyerDetailsPage').classList.add('hidden');
+            document.getElementById('buyerPaymentPage').classList.remove('hidden');
+        }
+
+        window.backToBuyerDetails = function() {
+            document.getElementById('buyerPaymentPage').classList.add('hidden');
+            document.getElementById('buyerDetailsPage').classList.remove('hidden');
+        }
+
+        window.submitBuyerPaymentFinal = async function(e) {
+            e.preventDefault();
+            const screenshotInput = document.getElementById('buyerPaymentScreenshot');
+            const book = window.books.find(b => b.id === window.currentCheckoutBookId);
+            if(!book) return;
+
+            document.getElementById('buyerScanLoader').classList.remove('hidden');
+            const isValid = await analyzePaymentScreenshot(screenshotInput);
+            document.getElementById('buyerScanLoader').classList.add('hidden');
+
+            if(!isValid) {
+                alert('Invalid screenshot!');
+                return;
+            }
+
+            const newOrder = {
+                orderId: 'ORD_' + Date.now(),
+                bookId: book.id,
+                bookName: book.name,
+                bookPrice: book.price,
+                sellerEmail: book.sellerEmail,
+                sellerPhone: book.phone,
+                sellerAddress: book.address,
+                buyerEmail: window.currentUser.email,
+                buyerName: window.tempBuyerData.name,
+                buyerPhone: window.tempBuyerData.phone,
+                buyerAddress: window.tempBuyerData.address,
+                status: 'Active',
+                date: new Date().toISOString()
+            };
+
+            await addDoc(collection(db, "orders"), newOrder);
+            window.adminEarnings.unlock += 9;
+            localStorage.setItem('bouks_admin_earnings', JSON.stringify(window.adminEarnings));
+
+            document.getElementById('unlockedPhoneDisplay').innerText = book.phone;
+            document.getElementById('unlockedAddressDisplay').innerText = book.address;
+            document.getElementById('buyerPaymentPage').classList.add('hidden');
+            document.getElementById('bookUnlockedView').classList.remove('hidden');
+            await fetchCloudData();
+        }
+
+        function updateOrderBadgeCount() {
+            if(!window.currentUser) return;
+            const activeOrdersCount = window.orders.filter(o => o.sellerEmail === window.currentUser.email && o.status === 'Active').length;
+            const badge = document.getElementById('orderNotificationBadge');
+            if(activeOrdersCount > 0) {
+                badge.innerText = activeOrdersCount;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        window.renderSellerBooks = function() {
+            const grid = document.getElementById('sellerBooksGrid');
+            if(!grid || !window.currentUser) return;
+            grid.innerHTML = '';
+            updateOrderBadgeCount();
+
+            const myDelivered = window.orders.filter(o => o.sellerEmail === window.currentUser.email && o.status === 'Delivered');
+            let rev = 0;
+            myDelivered.forEach(o => rev += (o.bookPrice || 0));
+
+            document.getElementById('sellerTotalSaleAmount').innerText = `₹${rev}`;
+            document.getElementById('sellerDeliveredCount').innerText = myDelivered.length;
+
+            const myBooks = window.books.filter(b => b.sellerEmail === window.currentUser.email && b.units > 0);
+            if(myBooks.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-12 text-gray-400 text-sm">No books listed.</div>`;
+                return;
+            }
+
+            myBooks.forEach(b => {
+                let card = document.createElement('div');
+                card.className = "bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden flex flex-col justify-between";
+                card.innerHTML = `
+                    <div class="h-44 bg-gray-100"><img src="${b.photos[0]}" class="w-full h-full object-cover"></div>
+                    <div class="p-4 space-y-2">
+                        <h4 class="font-extrabold text-gray-900 text-sm">${b.name}</h4>
+                        <div class="flex items-center justify-between pt-2 border-t">
+                            <span class="text-sm font-black text-brand-600">₹${b.price}</span>
+                            <span class="text-xs text-gray-500">${b.units} left</span>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        window.openSellerOrdersModal = function() {
+            const list = document.getElementById('sellerOrdersList');
+            list.innerHTML = '';
+            const myOrders = window.orders.filter(o => o.sellerEmail === window.currentUser.email && o.status === 'Active');
+            if(myOrders.length === 0) {
+                list.innerHTML = `<p class="text-center text-gray-400 text-sm py-8">No active orders.</p>`;
+            } else {
+                myOrders.forEach(o => {
+                    let item = document.createElement('div');
+                    item.className = "bg-gray-50 p-4 rounded-2xl border flex items-center justify-between gap-4";
+                    item.innerHTML = `
+                        <div>
+                            <h4 class="font-bold text-sm">${o.bookName}</h4>
+                            <p class="text-xs">Buyer: ${o.buyerName} | Phone: ${o.buyerPhone}</p>
+                            <p class="text-xs">Address: ${o.buyerAddress}</p>
+                        </div>
+                        <button onclick="markBookDelivered('${o.firestoreId}', '${o.bookId}')" class="bg-green-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold">Mark Delivered</button>
+                    `;
+                    list.appendChild(item);
+                });
+            }
+            document.getElementById('sellerOrdersModal').classList.remove('hidden');
+        }
+
+        window.closeSellerOrdersModal = function() {
+            document.getElementById('sellerOrdersModal').classList.add('hidden');
+        }
+
+        window.markBookDelivered = async function(firestoreOrderId, bookId) {
+            await updateDoc(doc(db, "orders", firestoreOrderId), { status: 'Delivered' });
+            
+            const book = window.books.find(b => b.id === bookId);
+            if(book && book.firestoreId) {
+                const newUnits = Math.max(0, book.units - 1);
+                await updateDoc(doc(db, "books", book.firestoreId), { units: newUnits });
+            }
+
+            await fetchCloudData();
+            alert('Marked Delivered!');
+            openSellerOrdersModal();
+            renderSellerBooks();
+        }
+
+        window.openMyOrdersModal = function() {
+            const list = document.getElementById('buyerOrdersList');
+            list.innerHTML = '';
+            const myPurchases = window.orders.filter(o => o.buyerEmail === window.currentUser.email);
+            if(myPurchases.length === 0) {
+                list.innerHTML = `<p class="text-center text-gray-400 text-sm py-8">No unlocked orders.</p>`;
+            } else {
+                myPurchases.forEach(o => {
+                    let item = document.createElement('div');
+                    item.className = "bg-gray-50 p-4 rounded-2xl border text-xs space-y-1";
+                    item.innerHTML = `
+                        <div class="flex justify-between font-bold"><span>${o.bookName}</span><span class="text-green-600">${o.status}</span></div>
+                        <p>Seller Phone: ${o.sellerPhone}</p>
+                        <p>Seller Address: ${o.sellerAddress}</p>
+                    `;
+                    list.appendChild(item);
+                });
+            }
+            document.getElementById('myOrdersModal').classList.remove('hidden');
+        }
+
+        window.closeMyOrdersModal = function() {
+            document.getElementById('myOrdersModal').classList.add('hidden');
+        }
+
+        window.openAdminModal = function() { document.getElementById('adminModal').classList.remove('hidden'); }
+        window.closeAdminModal = function() { document.getElementById('adminModal').classList.add('hidden'); }
+
+        window.verifyAdmin = function() {
+            if(document.getElementById('adminUser').value === 'dipesh_admin' && document.getElementById('adminPass').value === 'dipesh123admin') {
+                document.getElementById('adminLoginBox').classList.add('hidden');
+                document.getElementById('adminDashboardBox').classList.remove('hidden');
+                loadAdminStats();
+            } else {
+                alert('Invalid credentials!');
+            }
+        }
+
+        function loadAdminStats() {
+            document.getElementById('adminListingRevenue').innerText = `₹${window.adminEarnings.listing}`;
+            document.getElementById('adminUnlockRevenue').innerText = `₹${window.adminEarnings.unlock}`;
+            renderAdminUsersList();
+        }
+
+        window.renderAdminUsersList = function() {
+            document.getElementById('adminUsersContainer').classList.remove('hidden');
+            document.getElementById('adminUserDetailView').classList.add('hidden');
+            document.getElementById('adminBackToUsersBtn').classList.add('hidden');
+
+            let sellersMap = {}, buyersMap = {};
+            window.books.forEach(b => {
+                if(b.sellerEmail) {
+                    if(!sellersMap[b.sellerEmail]) sellersMap[b.sellerEmail] = { email: b.sellerEmail, count: 0 };
+                    sellersMap[b.sellerEmail].count++;
+                }
+            });
+            window.orders.forEach(o => {
+                if(o.buyerEmail) {
+                    if(!buyersMap[o.buyerEmail]) buyersMap[o.buyerEmail] = { email: o.buyerEmail, count: 0 };
+                    buyersMap[o.buyerEmail].count++;
+                }
+            });
+
+            document.getElementById('adminTotalUsers').innerText = Object.keys(sellersMap).length + Object.keys(buyersMap).length;
+
+            const sList = document.getElementById('adminSellersList');
+            const bList = document.getElementById('adminBuyersList');
+            sList.innerHTML = ''; bList.innerHTML = '';
+
+            Object.values(sellersMap).forEach(s => {
+                let card = document.createElement('div');
+                card.className = "bg-gray-50 p-3 rounded-xl border cursor-pointer flex justify-between items-center text-xs";
+                card.onclick = () => showAdminUserDetails('seller', s.email);
+                card.innerHTML = `<span class="truncate">${s.email}</span><span class="font-bold text-brand-600">${s.count} books</span>`;
+                sList.appendChild(card);
+            });
+
+            Object.values(buyersMap).forEach(b => {
+                let card = document.createElement('div');
+                card.className = "bg-gray-50 p-3 rounded-xl border cursor-pointer flex justify-between items-center text-xs";
+                card.onclick = () => showAdminUserDetails('buyer', b.email);
+                card.innerHTML = `<span class="truncate">${b.email}</span><span class="font-bold text-blue-600">${b.count} orders</span>`;
+                bList.appendChild(card);
+            });
+        }
+
+        window.showAdminUserDetails = function(type, email) {
+            document.getElementById('adminUsersContainer').classList.add('hidden');
+            document.getElementById('adminUserDetailView').classList.remove('hidden');
+            document.getElementById('adminBackToUsersBtn').classList.remove('hidden');
+            document.getElementById('adminSelectedUserName').innerText = email.split('@')[0];
+            document.getElementById('adminSelectedUserEmail').innerText = email;
+
+            const pList = document.getElementById('adminUserProductsList');
+            pList.innerHTML = '';
+            window.books.filter(b => b.sellerEmail === email).forEach(b => {
+                let item = document.createElement('div');
+                item.className = "bg-gray-50 p-2 rounded border text-xs flex justify-between items-center";
+                item.innerHTML = `<span>${b.name} (₹${b.price})</span><button onclick="adminDeleteBook('${b.firestoreId}')" class="text-red-500 font-bold">Delete</button>`;
+                pList.appendChild(item);
+            });
+
+            const oList = document.getElementById('adminUserBoughtList');
+            oList.innerHTML = '';
+            window.orders.filter(o => o.buyerEmail === email).forEach(o => {
+                let item = document.createElement('div');
+                item.className = "bg-gray-50 p-2 rounded border text-xs";
+                item.innerHTML = `<strong>${o.bookName}</strong> - ₹${o.bookPrice} [${o.status}]`;
+                oList.appendChild(item);
+            });
+        }
+
+        window.adminDeleteBook = async function(firestoreId) {
+            await deleteDoc(doc(db, "books", firestoreId));
+            await fetchCloudData();
+            renderAdminUsersList();
+            renderBuyerBooks();
+            renderSellerBooks();
+        }
+    </script>
+</body>
+</html>
